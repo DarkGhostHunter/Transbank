@@ -5,7 +5,9 @@
 
 # Transbank
 
-Modern Transbank SDK in PHP for Webpay, Webpay Mall and Webpay Oneclick Mall.
+Easy-to-use Transbank SDK for PHP.
+
+Supports Webpay, Webpay Mall and Webpay Oneclick Mall.
 
 ## Requisites:
 

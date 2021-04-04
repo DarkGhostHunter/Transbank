@@ -1,6 +1,6 @@
 {
   "name": "darkghosthunter/transbank",
-  "description": "Non-official Transbank Webpay, Webpay Mall and Webpay Oneclick Mall SDK for PHP.",
+  "description": "Easy-to-use Transbank SDK for PHP.",
   "license": "MIT",
   "keywords": [
     "payments",
