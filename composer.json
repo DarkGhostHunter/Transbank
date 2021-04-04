@@ -1,0 +1,50 @@
+{
+  "name": "darkghosthunter/webpay",
+  "description": "Non-official Transbank Webpay, Webpay Mall and Webpay Oneclick Mall SDK for PHP.",
+  "license": "MIT",
+  "keywords": [
+    "payments",
+    "transbank",
+    "api",
+    "sdk",
+    "webpay"
+  ],
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": ">=7.3",
+    "ext-json": "*",
+    "psr/http-client": "1.*",
+    "psr/log": "1.*",
+    "psr/event-dispatcher": "1.*",
+    "nyholm/psr7": "^1.4"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest",
+    "phpunit/phpunit": "^9.5",
+    "mockery/mockery": "^1.4",
+    "guzzlehttp/guzzle": "^7.0"
+  },
+  "suggest": {
+    "guzzlehttp/guzzle": "HTTP Client for contacting Transbank servers.",
+    "symfony/http-client": "HTTP Client for contacting Transbank servers.",
+    "monolog/monolog": "Allows advanced logging for this SDK operations.",
+    "symfony/event-dispatcher": "Allows for hearing transactions created and completed.",
+    "league/event": "Allows for hearing transactions created and completed."
+  },
+  "autoload": {
+    "psr-4": {
+      "DarkGhostHunter\\Transbank\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit --coverage-clover build/logs/clover.xml",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+  }
+}
