@@ -123,10 +123,10 @@ All exceptions implement `TransbankException`, so you can easily catch and check
 
 > Transactions properly rejected by banks or credit card issuers do not throw exceptions.
 
-There are 3 types of exceptions:
+There are 4 types of exceptions:
 
 * `ClientException`: Any error byproduct of bad transactions, bad configuration, abort, abandonment, timeout or invalid values.
-* `NetworkException`: Any communication error from Transbank Server.
+* `NetworkException`: Any communication error from Transbank Server, like network timeouts or wrong endpoints.
 * `ServerException`: Any internal Transbank error.
 * `UnknownException`: Any other error.
 
