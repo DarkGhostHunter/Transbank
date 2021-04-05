@@ -2,6 +2,8 @@
 
 namespace Tests\Services;
 
+use DarkGhostHunter\Transbank\Events\TransactionCreated;
+use DarkGhostHunter\Transbank\Services\Transactions\Response as TransbankResponse;
 use DarkGhostHunter\Transbank\Services\Transactions\Transaction;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
@@ -121,6 +123,21 @@ class OneclickMallTest extends TestCase
                 static::assertEquals($responseUrl, $context['api_request']['response_url']);
                 static::assertEquals($token, $context['raw_response']['token']);
                 static::assertEquals($url, $context['raw_response']['url_webpay']);
+            return true;
+        })->once()->andReturnNull();
+
+        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreated $event) use (
+            $token,
+            $url,
+            $responseUrl,
+            $email,
+            $username) {
+            static::assertEquals('oneclickMall.start', $event->apiRequest->serviceAction);
+            static::assertEquals($username, $event->apiRequest['username']);
+            static::assertEquals($email, $event->apiRequest['email']);
+            static::assertEquals($responseUrl, $event->apiRequest['response_url']);
+            static::assertEquals(new TransbankResponse($token, $url), $event->response);
+
             return true;
         })->once()->andReturnNull();
 
