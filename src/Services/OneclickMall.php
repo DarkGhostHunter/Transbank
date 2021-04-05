@@ -97,7 +97,9 @@ class OneclickMall
         $this->fireCreating($apiRequest);
 
         $response = $this->send(self::SERVICE_NAME, $apiRequest, 'post', static::ENDPOINT_START, [], $options);
+        $transaction = new Transactions\Response($response['token'], $response['url_webpay']);
 
+        $this->fireCreated($apiRequest, $transaction);
         $this->logResponse($apiRequest, $response);
 
         return new Transactions\Response($response['token'], $response['url_webpay']);

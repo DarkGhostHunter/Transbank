@@ -220,12 +220,12 @@ class WebpayMall
      * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function capture(
-$commerceCode,
-string $token,
-string $buyOrder,
-$authorizationCode,
-$captureAmount,
-array $options = []
+        $commerceCode,
+        string $token,
+        string $buyOrder,
+        $authorizationCode,
+        $captureAmount,
+        array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(
             static::ACTION_CAPTURE,
