@@ -1,7 +1,6 @@
 ![rawpixel - Unsplash (UL) #SEDqvdbkDQw](https://images.unsplash.com/photo-1614267119077-51bdcbf9f77a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1280&h=400&q=80)
 
-[![Latest Stable Version](https://poser.pugx.org/darkghosthunter/transbank/v/stable)](https://packagist.org/packages/darkghosthunter/transbank) [![License](https://poser.pugx.org/darkghosthunter/transbank/license)](https://packagist.org/packages/darkghosthunter/transbank)
-![](https://img.shields.io/packagist/php-v/darkghosthunter/transbank.svg) [![PHP Composer](https://github.com/DarkGhostHunter/TransbankApi/workflows/PHP%20Composer/badge.svg)](https://github.com/DarkGhostHunter/transbank/actions) [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/transbank/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/transbank?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/darkghosthunter/transbank/v/stable)](https://packagist.org/packages/darkghosthunter/transbank) [![License](https://poser.pugx.org/darkghosthunter/transbank/license)](https://packagist.org/packages/darkghosthunter/transbank) ![](https://img.shields.io/packagist/php-v/darkghosthunter/transbank.svg) [![PHP Composer](https://github.com/DarkGhostHunter/TransbankApi/workflows/PHP%20Composer/badge.svg)](https://github.com/DarkGhostHunter/transbank/actions) [![Coverage Status](https://coveralls.io/repos/github/DarkGhostHunter/Transbank/badge.svg?branch=master)](https://coveralls.io/github/DarkGhostHunter/Transbank?branch=master)
 
 # Transbank
 
