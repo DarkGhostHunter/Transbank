@@ -28,9 +28,9 @@ This SDK mimics all the Webpay, Webpay Mall and Oneclick Mall methods from the o
 
 You can check the documentation of these services in Transbank Developer's site (in spanish).
 
-- [Webpay](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus)
-- [Webpay Mall](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus-mall)
-- [Oneclick Mall](https://www.transbankdevelopers.cl/documentacion/oneclick)
+- [Webpay](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Fwebpay-plus)
+- [Webpay Mall](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus-mall) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Fwebpay-plus%23webpay-plus-mall)
+- [Oneclick Mall](https://www.transbankdevelopers.cl/documentacion/oneclick) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Foneclick)
 
 ## Quickstart
 
