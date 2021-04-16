@@ -49,4 +49,14 @@ class Response
     {
         return $this->url;
     }
+
+    /**
+     * Transforms the Response into a String for Webpay GET redirects.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->url . '?' . http_build_query(['token_ws' => $this->token]);
+    }
 }

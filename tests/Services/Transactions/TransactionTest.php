@@ -3,11 +3,20 @@
 namespace Tests\Services\Transactions;
 
 use BadMethodCallException;
+use DarkGhostHunter\Transbank\Services\Transactions\Response;
 use PHPUnit\Framework\TestCase;
 use DarkGhostHunter\Transbank\Services\Transactions\Transaction;
 
 class TransactionTest extends TestCase
 {
+    public function test_response_transforms_into_webpay_url(): void
+    {
+        static::assertEquals(
+            'https://api.tbk.cl/transaction?token_ws=foo',
+            (string)(new Response('foo', 'https://api.tbk.cl/transaction'))
+        );
+    }
+
     public function test_dynamically_gets_property(): void
     {
         $transaction = new Transaction('foo', [

@@ -4,7 +4,7 @@ include_once '../load.php';
 
 $webpay = \DarkGhostHunter\Transbank\Transbank::make()->webpayMall();
 
-$result = $webpay->commit($_POST['token_ws']);
+$result = $webpay->commit($_GET['token_ws']);
 
 ?>
 <!doctype html>
@@ -18,7 +18,7 @@ $result = $webpay->commit($_POST['token_ws']);
 <div class="container">
     <div class="card card-body mb-5">
         <h4>Recepción desde Webpay</h4>
-        <strong>Token:</strong> <?php echo $_POST['token_ws'] ?>
+        <strong>Token:</strong> <?php echo $_GET['token_ws'] ?>
         <pre><?php print_r($result) ?></pre>
 
         <?php if ($result->isSuccessful()) { ?>
