@@ -28,14 +28,14 @@ $response = $webpay->create(
             <li><strong>Retorno</strong>: <?php echo currentUrlPath('final.php') ?></li>
         </ul>
     </div>
-    <form id="redirect" action="<?php echo $response->getUrl() ?>" method="POST">
+    <form id="redirect" action="<?php echo $response->getUrl() ?>" method="GET">
         <input type="hidden" name="token_ws" value="<?php echo htmlspecialchars($response->getToken(), ENT_HTML5) ?>">
         <div class="text-center">
             <button type="submit" class="btn btn-lg btn-primary mb-3">
                 Ir a Webpay <i class="fas fa-arrow-right"></i>
             </button>
             <div class="small text-black-50">
-                Esto hará una petición HTTP POST hacia Transbank.
+                Esto hará una petición HTTP GET hacia Transbank.
             </div>
         </div>
     </form>
