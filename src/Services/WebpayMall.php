@@ -28,29 +28,14 @@ class WebpayMall
     public const ENDPOINT_CAPTURE = Webpay::ENDPOINT_CAPTURE;
 
     /**
-     * Transbank instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Transbank
-     */
-    protected $transbank;
-
-    /**
-     * Credential Container instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Credentials\Container
-     */
-    protected $container;
-
-    /**
      * Webpay constructor.
      *
      * @param  \DarkGhostHunter\Transbank\Transbank  $transbank
      * @param  \DarkGhostHunter\Transbank\Credentials\Container  $container
      */
-    public function __construct(Transbank $transbank, Container $container)
+    public function __construct(protected Transbank $transbank, protected Container $container)
     {
-        $this->container = $container;
-        $this->transbank = $transbank;
+        //
     }
 
     /**
@@ -61,9 +46,9 @@ class WebpayMall
      * @param  string  $sessionId
      * @param  array  $details
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Response
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function create(
         string $buyOrder,
@@ -100,9 +85,9 @@ class WebpayMall
      *
      * @param  string  $token
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function commit(string $token, array $options = []): Transactions\Transaction
     {
@@ -133,9 +118,9 @@ class WebpayMall
      *
      * @param  string  $token
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function status(string $token, array $options = []): Transactions\Transaction
     {
@@ -165,15 +150,15 @@ class WebpayMall
      * @param  string  $buyOrder
      * @param  int|float  $amount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function refund(
-        $commerceCode,
+        string|int $commerceCode,
         string $token,
         string $buyOrder,
-        $amount,
+        int|float $amount,
         array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(
@@ -215,16 +200,16 @@ class WebpayMall
      * @param  int|string  $authorizationCode
      * @param  int|float  $captureAmount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function capture(
-        $commerceCode,
+        string|int $commerceCode,
         string $token,
         string $buyOrder,
-        $authorizationCode,
-        $captureAmount,
+        string|int $authorizationCode,
+        int|float $captureAmount,
         array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(

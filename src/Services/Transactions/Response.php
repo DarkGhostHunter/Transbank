@@ -5,29 +5,14 @@ namespace DarkGhostHunter\Transbank\Services\Transactions;
 class Response
 {
     /**
-     * Redirection URL where the user should send a POST request.
-     *
-     * @var string
-     */
-    protected $url;
-
-    /**
-     * The token value that POST request should contain.
-     *
-     * @var string
-     */
-    protected $token;
-
-    /**
      * Response constructor.
      *
      * @param  string  $token
      * @param  string  $url
      */
-    public function __construct(string $token, string $url)
+    public function __construct(protected string $token, protected string $url)
     {
-        $this->token = $token;
-        $this->url = $url;
+        //
     }
 
     /**

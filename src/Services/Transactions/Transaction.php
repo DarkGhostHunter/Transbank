@@ -31,29 +31,14 @@ class Transaction implements ArrayAccess, JsonSerializable
     use DynamicallyAccess;
 
     /**
-     * Name of the service and action that created this Transaction.
-     *
-     * @var string
-     */
-    public $serviceAction;
-
-    /**
-     * The data of the transaction.
-     *
-     * @var array
-     */
-    protected $data;
-
-    /**
      * ApiRequest constructor.
      *
      * @param  string  $serviceAction  Name of the service and action that created this transaction using dot notation.
      * @param  array  $data  Raw response array from Transbank.
      */
-    public function __construct(string $serviceAction, array $data)
+    public function __construct(public string $serviceAction, protected array $data)
     {
-        $this->data = $data;
-        $this->serviceAction = $serviceAction;
+        //
     }
 
     /**
@@ -61,10 +46,9 @@ class Transaction implements ArrayAccess, JsonSerializable
      *
      * @param  string  $serviceAction
      * @param  array  $response
-     *
      * @return static
      */
-    public static function createWithDetails(string $serviceAction, array $response): Transaction
+    public static function createWithDetails(string $serviceAction, array $response): static
     {
         // If the response contains details, add them as a class.
         if (isset($response['details']) && is_array($response['details'])) {
@@ -108,7 +92,7 @@ class Transaction implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * Returns the Credit Card number as an integer, or null if it doesn't exists.
+     * Returns the Credit Card number as an integer, or null if it doesn't exist.
      *
      * @return int|null
      */

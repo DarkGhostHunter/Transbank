@@ -22,7 +22,7 @@ trait FiresEvents
     }
 
     /**
-     * Fires an Transaction Created event.
+     * Fires a Transaction Created event.
      *
      * @param  \DarkGhostHunter\Transbank\ApiRequest  $apiRequest
      * @param  \DarkGhostHunter\Transbank\Services\Transactions\Response  $response

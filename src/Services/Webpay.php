@@ -35,29 +35,14 @@ class Webpay
     public const ENDPOINT_CAPTURE = self::ENDPOINT_BASE . 'transactions/{token}/capture';
 
     /**
-     * Transbank instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Transbank
-     */
-    protected $transbank;
-
-    /**
-     * Credential Container instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Credentials\Container
-     */
-    protected $container;
-
-    /**
      * Webpay constructor.
      *
      * @param  \DarkGhostHunter\Transbank\Transbank  $transbank
      * @param  \DarkGhostHunter\Transbank\Credentials\Container  $container
      */
-    public function __construct(Transbank $transbank, Container $container)
+    public function __construct(public Transbank $transbank, public Container $container)
     {
-        $this->container = $container;
-        $this->transbank = $transbank;
+        //
     }
 
     /**
@@ -68,15 +53,15 @@ class Webpay
      * @param  string  $returnUrl
      * @param  string|null  $sessionId
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Response
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function create(
         string $buyOrder,
-        $amount,
+        int|float $amount,
         string $returnUrl,
-        string $sessionId,
+        ?string $sessionId,
         array $options = []
     ): Transactions\Response {
         $apiRequest = new ApiRequest(
@@ -106,9 +91,9 @@ class Webpay
      *
      * @param  string  $token
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function commit(string $token, array $options = []): Transactions\Transaction
     {
@@ -138,9 +123,9 @@ class Webpay
      *
      * @param  string  $token
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function status(string $token, array $options = []): Transactions\Transaction
     {
@@ -168,11 +153,11 @@ class Webpay
      * @param  string  $token
      * @param  int|float  $amount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
-    public function refund(string $token, $amount, array $options = []): Transactions\Transaction
+    public function refund(string $token, int|float $amount, array $options = []): Transactions\Transaction
     {
         $apiRequest = new ApiRequest(static::ACTION_REFUND, ['amount' => $amount]);
 
@@ -208,15 +193,15 @@ class Webpay
      * @param  int  $authorizationCode
      * @param  int|float  $captureAmount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function capture(
         string $token,
         string $buyOrder,
         int $authorizationCode,
-        $captureAmount,
+        int|float $captureAmount,
         array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(

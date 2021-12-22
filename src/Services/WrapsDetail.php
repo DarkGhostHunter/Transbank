@@ -8,7 +8,6 @@ trait WrapsDetail
      * Wraps a detail array.
      *
      * @param  array  $details
-     *
      * @return array[]
      */
     protected static function wrapDetails(array $details): array

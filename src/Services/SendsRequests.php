@@ -20,7 +20,7 @@ trait SendsRequests
      * @param  array  $options
      *
      * @return array
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     protected function send(
         string $action,
@@ -49,13 +49,10 @@ trait SendsRequests
      */
     protected function buildEndpoint(string $endpoint, array $replace = []): string
     {
-        return str_replace(
-            array_keys($replace),
-            $replace,
-            $this->transbank->isProduction()
-                ? Connector::PRODUCTION_ENDPOINT . $endpoint
-                : Connector::INTEGRATION_ENDPOINT . $endpoint,
-            $replace
-        );
+        $endpoint = $this->transbank->isProduction()
+            ? Connector::PRODUCTION_ENDPOINT . $endpoint
+            : Connector::INTEGRATION_ENDPOINT . $endpoint;
+
+        return str_replace(array_keys($replace), $replace, $endpoint);
     }
 }

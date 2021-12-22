@@ -8,31 +8,15 @@ use JsonSerializable;
 class ApiRequest implements JsonSerializable, ArrayAccess
 {
     /**
-     * Service Action name
-     *
-     * @var string|null
-     * @example "webpay.create"
-     */
-    public ?string $serviceAction = null;
-
-    /**
-     * Key-value array to send to Transbank as JSON.
-     *
-     * @var string[]
-     */
-    public array $attributes = [];
-
-    /**
      * Create a new API Request instance.
      *
      * @param  string  $serviceAction
      * @param  array  $attributes
      * @return void
      */
-    public function __construct(string $serviceAction, array $attributes = [])
+    public function __construct(public string $serviceAction, public array $attributes = [])
     {
-        $this->attributes = $attributes;
-        $this->serviceAction = $serviceAction;
+        //
     }
 
     /**
