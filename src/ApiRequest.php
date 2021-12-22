@@ -10,23 +10,24 @@ class ApiRequest implements JsonSerializable, ArrayAccess
     /**
      * Service Action name
      *
-     * @var string
+     * @var string|null
      * @example "webpay.create"
      */
-    public $serviceAction;
+    public ?string $serviceAction = null;
 
     /**
      * Key-value array to send to Transbank as JSON.
      *
-     * @var array
+     * @var string[]
      */
-    public $attributes = [];
+    public array $attributes = [];
 
     /**
-     * ApiRequest constructor.
+     * Create a new API Request instance.
      *
      * @param  string  $serviceAction
      * @param  array  $attributes
+     * @return void
      */
     public function __construct(string $serviceAction, array $attributes = [])
     {
@@ -37,15 +38,16 @@ class ApiRequest implements JsonSerializable, ArrayAccess
     /**
      * Returns a JSON representation of the transaction.
      *
+     * @param  int  $options
      * @return string
      */
-    public function toJson(): string
+    public function toJson(int $options = 0): string
     {
         if (empty($this->attributes)) {
             return '';
         }
 
-        return json_encode($this->jsonSerialize(), JSON_ERROR_NONE);
+        return json_encode($this->jsonSerialize(), $options);
     }
 
     /**
@@ -59,13 +61,12 @@ class ApiRequest implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * Whether a offset exists.
+     * Whether an offset exists.
      *
      * @param  mixed  $offset
-     *
      * @return bool
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->attributes[$offset]);
     }
@@ -74,10 +75,9 @@ class ApiRequest implements JsonSerializable, ArrayAccess
      * Offset to retrieve.
      *
      * @param  mixed  $offset
-     *
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->attributes[$offset];
     }
@@ -87,10 +87,9 @@ class ApiRequest implements JsonSerializable, ArrayAccess
      *
      * @param  mixed  $offset
      * @param  mixed  $value
-     *
      * @return void
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->attributes[$offset] = $value;
     }
@@ -99,10 +98,9 @@ class ApiRequest implements JsonSerializable, ArrayAccess
      * Offset to unset.
      *
      * @param  mixed  $offset
-     *
      * @return void
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->attributes[$offset]);
     }
