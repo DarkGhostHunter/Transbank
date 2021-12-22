@@ -8,29 +8,13 @@ use DarkGhostHunter\Transbank\Services\Transactions\Response;
 class TransactionCreated
 {
     /**
-     * API Request sent.
-     *
-     * @var \DarkGhostHunter\Transbank\ApiRequest
-     * @example Creation, refunds, captures.
-     */
-    public $apiRequest;
-
-    /**
-     * Transaction Response
-     *
-     * @var \DarkGhostHunter\Transbank\Services\Transactions\Response
-     */
-    public $response;
-
-    /**
      * TransactionCompleted constructor.
      *
      * @param  \DarkGhostHunter\Transbank\ApiRequest  $apiRequest  Data sent to Transbank.
      * @param  \DarkGhostHunter\Transbank\Services\Transactions\Response  $response  Raw response from Transbank.
      */
-    public function __construct(ApiRequest $apiRequest, Response $response)
+    public function __construct(public ApiRequest $apiRequest, public Response $response)
     {
-        $this->response = $response;
-        $this->apiRequest = $apiRequest;
+        //
     }
 }
