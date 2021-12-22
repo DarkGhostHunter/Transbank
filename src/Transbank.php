@@ -2,17 +2,17 @@
 
 namespace DarkGhostHunter\Transbank;
 
-use Closure;
+use DarkGhostHunter\Transbank\Credentials\Container;
+use DarkGhostHunter\Transbank\Events\NullDispatcher;
+use DarkGhostHunter\Transbank\Http\Connector;
 use LogicException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use ReflectionFunction;
 use RuntimeException;
-use DarkGhostHunter\Transbank\Credentials\Container;
-use DarkGhostHunter\Transbank\Events\NullDispatcher;
-use DarkGhostHunter\Transbank\Http\Connector;
+use function class_exists;
+use function array_keys;
 
 class Transbank
 {

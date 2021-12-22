@@ -2,6 +2,13 @@
 
 namespace DarkGhostHunter\Transbank\Http;
 
+use DarkGhostHunter\Transbank\ApiRequest;
+use DarkGhostHunter\Transbank\Credentials\Credentials;
+use DarkGhostHunter\Transbank\Exceptions\ClientException;
+use DarkGhostHunter\Transbank\Exceptions\NetworkException;
+use DarkGhostHunter\Transbank\Exceptions\ServerException;
+use DarkGhostHunter\Transbank\Exceptions\UnknownException;
+use DarkGhostHunter\Transbank\Transbank;
 use JsonException;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Client\NetworkExceptionInterface;
@@ -12,14 +19,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\StreamFactoryInterface;
 use Throwable;
-use DarkGhostHunter\Transbank\ApiRequest;
-use DarkGhostHunter\Transbank\Credentials\Credentials;
-use DarkGhostHunter\Transbank\Exceptions\ClientException;
-use DarkGhostHunter\Transbank\Exceptions\NetworkException;
-use DarkGhostHunter\Transbank\Exceptions\ServerException;
-use DarkGhostHunter\Transbank\Exceptions\UnknownException;
-use DarkGhostHunter\Transbank\Transbank;
 use function in_array;
+use function str_replace;
+use function json_decode;
 
 class Connector
 {

@@ -4,6 +4,7 @@ namespace DarkGhostHunter\Transbank\Credentials;
 
 use LogicException;
 use RuntimeException;
+use function property_exists;
 
 /**
  * Class Container
