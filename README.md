@@ -42,18 +42,12 @@ use DarkGhostHunter\Transbank\Transbank;
 $transbank = Transbank::make();
 ```
 
-If your project doesn't manage singletons, you can use `singletonBuilder()` to save a builder function, and recall the singleton with `singleton()`.
+If your project doesn't manage single instances, you can use `getInstance()` to receive a static Transbank instance.
 
 ```php
 use DarkGhostHunter\Transbank\Transbank;
 
-Transbank::singletonBuilder(function () : Transbank {
-    return Transbank::make()->toProduction([
-        'webpay' => ['key' => '...', 'secret' => '...']
-    ]);
-});
-
-$tbk = Transbank::singleton();
+$transbank = Transbank::getInstance();
 ```
 
 ### Environments and credentials
