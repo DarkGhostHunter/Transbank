@@ -24,18 +24,11 @@ class Transbank
     public const VERSION = '2.0';
 
     /**
-     * Callback that constructs a Transbank instance.
-     *
-     * @var null|Closure(): Transbank
-     */
-    protected static ?Closure $builder = null;
-
-    /**
      * Transbank instance singleton helper.
      *
      * @var Transbank|null
      */
-    protected static ?self $singleton = null;
+    protected static ?self $instance = null;
 
     /**
      * Transbank constructor.
@@ -88,41 +81,24 @@ class Transbank
     }
 
     /**
-     * Registers a callback that returns a Transbank instance.
+     * Returns the Transbank single instance.
      *
-     * @param  Closure(): Transbank  $constructor
-     * @return void
-     * @throws \ReflectionException
+     * @return static
      */
-    public static function singletonBuilder(Closure $constructor): void
+    public static function getInstance(): self
     {
-        $return = (new ReflectionFunction($constructor))->getReturnType();
-
-        if (!$return || $return->getName() !== __CLASS__) {
-            throw new LogicException('Closure must declare returning a Transbank object instance.');
-        }
-
-        static::$builder = $constructor;
+        return static::$instance ??= static::make();
     }
 
     /**
-     * Returns a Transbank instance as a singleton.
+     * Sets the Transbank instance.
      *
-     * @param  mixed  ...$arguments
-     *
-     * @return Transbank
+     * @param  static|null  $instance
+     * @return void
      */
-    public static function singleton(...$arguments): Transbank
+    public static function setInstance(self $instance = null): void
     {
-        if (static::$singleton) {
-            return static::$singleton;
-        }
-
-        if (!static::$builder) {
-            throw new RuntimeException('There is no constructor to create a Transbank instance.');
-        }
-
-        return static::$singleton = call_user_func(static::$builder, ...$arguments);
+        static::$instance = $instance;
     }
 
     /**
