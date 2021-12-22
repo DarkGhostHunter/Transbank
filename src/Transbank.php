@@ -31,7 +31,7 @@ class Transbank
     protected static ?self $instance = null;
 
     /**
-     * Transbank constructor.
+     * Create a new Transbank instance.
      *
      * @param  \DarkGhostHunter\Transbank\Credentials\Container  $credentials
      * @param  \Psr\Log\LoggerInterface  $logger
