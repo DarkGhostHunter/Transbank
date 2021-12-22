@@ -4,6 +4,8 @@ namespace DarkGhostHunter\Transbank\Services;
 
 use DarkGhostHunter\Transbank\ApiRequest;
 use DarkGhostHunter\Transbank\Http\Connector;
+use function str_replace;
+use function array_keys;
 
 trait SendsRequests
 {

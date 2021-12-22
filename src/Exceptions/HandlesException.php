@@ -2,10 +2,10 @@
 
 namespace DarkGhostHunter\Transbank\Exceptions;
 
+use DarkGhostHunter\Transbank\ApiRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
-use DarkGhostHunter\Transbank\ApiRequest;
 
 trait HandlesException
 {

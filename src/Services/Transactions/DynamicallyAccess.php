@@ -3,8 +3,16 @@
 namespace DarkGhostHunter\Transbank\Services\Transactions;
 
 use BadMethodCallException;
-
 use function strlen;
+use function strncmp;
+use function ctype_upper;
+use function substr;
+use function strtolower;
+use function ltrim;
+use function preg_replace;
+use function ctype_lower;
+use function trigger_error;
+use function json_encode;
 
 trait DynamicallyAccess
 {

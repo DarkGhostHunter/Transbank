@@ -3,8 +3,8 @@
 namespace DarkGhostHunter\Transbank\Services;
 
 use DarkGhostHunter\Transbank\ApiRequest;
-use DarkGhostHunter\Transbank\Events\TransactionCreated;
 use DarkGhostHunter\Transbank\Events\TransactionCompleted;
+use DarkGhostHunter\Transbank\Events\TransactionCreated;
 use DarkGhostHunter\Transbank\Events\TransactionCreating;
 use DarkGhostHunter\Transbank\Services\Transactions\Response;
 use DarkGhostHunter\Transbank\Services\Transactions\Transaction;
