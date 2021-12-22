@@ -44,9 +44,9 @@ class Transbank
      */
     public function __construct(
         protected Container $credentials,
-        protected LoggerInterface $logger,
-        protected EventDispatcherInterface $event,
-        protected Http\Connector $connector,
+        public LoggerInterface $logger,
+        public EventDispatcherInterface $event,
+        public Http\Connector $connector,
         protected ?Services\Webpay $webpay = null,
         protected ?Services\WebpayMall $webpayMall = null,
         protected ?Services\OneclickMall $oneclickMall = null,

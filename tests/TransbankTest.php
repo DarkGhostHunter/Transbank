@@ -78,50 +78,16 @@ class TransbankTest extends TestCase
 
     public function test_can_singleton(): void
     {
-        $executed = false;
-
-        Transbank::singletonBuilder(function(bool $value) use (&$executed) : Transbank {
-            $executed = $value;
-
-            return Transbank::make();
-        });
-
-        $first = Transbank::singleton(true);
-        $second = Transbank::singleton(true);
-
-
-        static::assertTrue($executed);
-        static::assertEquals($first, $second);
+        static::assertSame(Transbank::getInstance(), Transbank::getInstance());
     }
 
-    public function test_exception_when_build_callable_doesnt_declare_return(): void
+    public function test_removes_instance_to_rebuild(): void
     {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Closure must declare returning a Transbank object instance.');
+        $singleton = Transbank::getInstance();
 
-        Transbank::singletonBuilder(function() {
-            return 'not transbank';
-        });
+        Transbank::setInstance();
 
-        Transbank::singleton();
-    }
-
-    public function test_exception_when_build_callable_returns_not_transbank(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Closure must declare returning a Transbank object instance.');
-
-        Transbank::singletonBuilder(function() : string {
-            return 'not transbank';
-        });
-    }
-
-    public function test_exception_when_build_callable_not_registered(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('There is no constructor to create a Transbank instance.');
-
-        Transbank::singleton();
+        static::assertNotSame($singleton, Transbank::getInstance());
     }
 
     public function test_switches_back_to_integration(): void
@@ -144,11 +110,7 @@ class TransbankTest extends TestCase
     {
         $class = new ReflectionClass(Transbank::class);
 
-        $property = $class->getProperty("singleton");
-        $property->setAccessible(true);
-        $property->setValue(null);
-
-        $property = $class->getProperty("builder");
+        $property = $class->getProperty("instance");
         $property->setAccessible(true);
         $property->setValue(null);
     }
