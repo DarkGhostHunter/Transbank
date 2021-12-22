@@ -16,7 +16,7 @@ trait DynamicallyAccess
      *
      * @return mixed
      */
-    public function __call(string $method, array $arguments)
+    public function __call(string $method, array $arguments): mixed
     {
         // If the call starts with "get", the developer is getting a property.
         if (strlen($method) > 3 && 0 === strncmp($method, 'get', strlen('get')) && ctype_upper($method[3])) {
@@ -64,7 +64,7 @@ trait DynamicallyAccess
             return $this->data[$snake];
         }
 
-        // The property doesn't exists, so bail out.
+        // The property doesn't exist, so bail out.
         trigger_error("Undefined property: " . __CLASS__ . '::$' . $name, E_USER_ERROR);
     }
 
@@ -74,7 +74,7 @@ trait DynamicallyAccess
      * @param  string  $name
      * @param  mixed  $value
      */
-    public function __set(string $name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         // Immutable
     }
@@ -92,50 +92,46 @@ trait DynamicallyAccess
     }
 
     /**
-     * Whether a offset exists
+     * Whether an offset exists.
      *
      * @param  mixed  $offset
-     *
      * @return bool
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->data[$offset]);
     }
 
     /**
-     * Offset to retrieve
+     * Offset to retrieve.
      *
      * @param  mixed  $offset
-     *
      * @return mixed
      */
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
         return $this->data[$offset];
     }
 
     /**
-     * Offset to set
+     * Offset to set.
      *
      * @param  mixed  $offset
      * @param  mixed  $value
-     *
      * @return void
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         // Immutable.
     }
 
     /**
-     * Offset to unset
+     * Offset to unset.
      *
      * @param  mixed  $offset
-     *
      * @return void
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         // Immutable
     }
@@ -153,11 +149,11 @@ trait DynamicallyAccess
     /**
      * Transforms this transaction to a JSON string.
      *
+     * @param  int  $options
      * @return string
-     * @throws \JsonException
      */
-    public function toJson(): string
+    public function toJson(int $options = 0): string
     {
-        return json_encode($this, JSON_THROW_ON_ERROR);
+        return json_encode($this->jsonSerialize(), $options);
     }
 }

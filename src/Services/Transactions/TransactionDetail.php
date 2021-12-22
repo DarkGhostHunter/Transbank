@@ -10,20 +10,13 @@ class TransactionDetail implements ArrayAccess, JsonSerializable
     use DynamicallyAccess;
 
     /**
-     * Transaction detail data.
-     *
-     * @var array
-     */
-    protected $data;
-
-    /**
      * ApiRequest constructor.
      *
      * @param  array  $data
      */
-    public function __construct(array $data)
+    public function __construct(protected array $data)
     {
-        $this->data = $data;
+        //
     }
 
     /**

@@ -9,10 +9,6 @@ use DarkGhostHunter\Transbank\ApiRequest;
 
 trait HandlesException
 {
-    protected $apiRequest = null;
-    protected $request = null;
-    protected $response = null;
-
     /**
      * Transbank Exception constructor.
      *
@@ -24,15 +20,11 @@ trait HandlesException
      */
     public function __construct(
         string $message = '',
-        ?ApiRequest $apiRequest = null,
-        ?ServerRequestInterface $request = null,
-        ?ResponseInterface $response = null,
+        protected ?ApiRequest $apiRequest = null,
+        protected ?ServerRequestInterface $request = null,
+        protected ?ResponseInterface $response = null,
         ?Throwable $previous = null
     ) {
-        $this->response = $response;
-        $this->request = $request;
-        $this->apiRequest = $apiRequest;
-
         parent::__construct($message, static::LOG_LEVEL, $previous);
     }
 

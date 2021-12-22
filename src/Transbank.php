@@ -21,91 +21,38 @@ class Transbank
      *
      * @var string
      */
-    public const VERSION = '1.0';
-
-    /**
-     * Callback that constructs a Transbank instance.
-     *
-     * @var null|Closure(): Transbank
-     */
-    protected static $builder = null;
+    public const VERSION = '2.0';
 
     /**
      * Transbank instance singleton helper.
      *
      * @var Transbank|null
      */
-    protected static $singleton = null;
-    /**
-     * Logger instance.
-     *
-     * @var \Psr\Log\LoggerInterface
-     */
-    public $logger;
-    /**
-     * Event dispatcher instance.
-     *
-     * @var \Psr\EventDispatcher\EventDispatcherInterface
-     */
-    public $event;
-    /**
-     * HTTP Connector to prepare and communicate to Transbank Servers.
-     *
-     * @var \DarkGhostHunter\Transbank\Http\Connector
-     */
-    public $connector;
-    /**
-     * Credentials container.
-     *
-     * @var \DarkGhostHunter\Transbank\Credentials\Container
-     */
-    protected $credentials;
-    /**
-     * The current environment for all Transbank services.
-     *
-     * @var bool
-     */
-    protected $production = false;
+    protected static ?self $instance = null;
 
     /**
-     * Webpay service instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Services\Webpay
-     */
-    protected $webpay;
-
-    /**
-     * Webpay Mall service instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Services\WebpayMall
-     */
-    protected $webpayMall;
-
-    /**
-     * Oneclick Mall service instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Services\OneclickMall
-     */
-    protected $oneclickMall;
-
-    /**
-     * Transbank constructor.
+     * Create a new Transbank instance.
      *
      * @param  \DarkGhostHunter\Transbank\Credentials\Container  $credentials
      * @param  \Psr\Log\LoggerInterface  $logger
      * @param  \Psr\EventDispatcher\EventDispatcherInterface  $event
      * @param  \DarkGhostHunter\Transbank\Http\Connector  $connector
+     * @param  \DarkGhostHunter\Transbank\Services\Webpay|null  $webpay
+     * @param  \DarkGhostHunter\Transbank\Services\WebpayMall|null  $webpayMall
+     * @param  \DarkGhostHunter\Transbank\Services\OneclickMall|null  $oneclickMall
+     * @param  bool  $production
      */
     public function __construct(
-        Container $credentials,
-        LoggerInterface $logger,
-        EventDispatcherInterface $event,
-        Connector $connector
+        protected Container $credentials,
+        public LoggerInterface $logger,
+        public EventDispatcherInterface $event,
+        public Http\Connector $connector,
+        protected ?Services\Webpay $webpay = null,
+        protected ?Services\WebpayMall $webpayMall = null,
+        protected ?Services\OneclickMall $oneclickMall = null,
+        protected bool $production = false,
     ) {
-        $this->connector = $connector;
-        $this->event = $event;
-        $this->logger = $logger;
-        $this->credentials = $credentials;
+        //
     }
 
     /**
@@ -114,23 +61,16 @@ class Transbank
      * @return static
      * @codeCoverageIgnore
      */
-    public static function make(): Transbank
+    public static function make(): static
     {
-        $client = null;
-
         // Get one of the two clients HTTP Clients and try to use them if they're installed.
-        switch (true) {
-            case class_exists(\GuzzleHttp\Client::class):
-                $client = new \GuzzleHttp\Client();
-                break;
-            case class_exists(\Symfony\Component\HttpClient\Psr18Client::class):
-                $client = new \Symfony\Component\HttpClient\Psr18Client();
-                break;
-            default:
-                throw new RuntimeException(
-                    'The "guzzlehttp/guzzle" or "symfony/http-client" libraries are not present. Install one or use your own PSR-18 HTTP Client.'
-                );
-        }
+        $client = match (true) {
+            class_exists(\GuzzleHttp\Client::class) => new \GuzzleHttp\Client(),
+            class_exists(\Symfony\Component\HttpClient\Psr18Client::class) => new \Symfony\Component\HttpClient\Psr18Client(),
+            default => throw new RuntimeException(
+                'The "guzzlehttp/guzzle" or "symfony/http-client" libraries are not present. Install one or use your own PSR-18 HTTP Client.'
+            ),
+        };
 
         return new static(
             new Container(),
@@ -141,42 +81,24 @@ class Transbank
     }
 
     /**
-     * Registers a callback that returns a Transbank instance.
+     * Returns the Transbank single instance.
      *
-     * @param  Closure(): Transbank  $constructor
-     *
-     * @return void
-     * @throws \ReflectionException
+     * @return static
      */
-    public static function singletonBuilder(Closure $constructor): void
+    public static function getInstance(): self
     {
-        $return = (new ReflectionFunction($constructor))->getReturnType();
-
-        if (!$return || $return->getName() !== __CLASS__) {
-            throw new LogicException('Closure must declare returning a Transbank object instance.');
-        }
-
-        static::$builder = $constructor;
+        return static::$instance ??= static::make();
     }
 
     /**
-     * Returns a Transbank instance as a singleton.
+     * Sets the Transbank instance.
      *
-     * @param  mixed  ...$arguments
-     *
-     * @return Transbank
+     * @param  static|null  $instance
+     * @return void
      */
-    public static function singleton(...$arguments): Transbank
+    public static function setInstance(self $instance = null): void
     {
-        if (static::$singleton) {
-            return static::$singleton;
-        }
-
-        if (!static::$builder) {
-            throw new RuntimeException('There is no constructor to create a Transbank instance.');
-        }
-
-        return static::$singleton = call_user_func(static::$builder, ...$arguments);
+        static::$instance = $instance;
     }
 
     /**
@@ -190,10 +112,9 @@ class Transbank
      *      - fullTransactionMall
      *
      * @param  array<array<string,string>>  $credentials
-     *
      * @return $this
      */
-    public function toProduction(array $credentials): Transbank
+    public function toProduction(array $credentials): static
     {
         if (empty($credentials)) {
             throw new LogicException('Cannot set empty credentials for production environment.');
@@ -216,7 +137,7 @@ class Transbank
      *
      * @return $this
      */
-    public function toIntegration(): Transbank
+    public function toIntegration(): static
     {
         $this->production = false;
 
@@ -252,7 +173,7 @@ class Transbank
      */
     public function webpay(): Services\Webpay
     {
-        return $this->webpay ?? $this->webpay = new Services\Webpay($this, $this->credentials);
+        return $this->webpay ??= new Services\Webpay($this, $this->credentials);
     }
 
     /**
@@ -262,7 +183,7 @@ class Transbank
      */
     public function webpayMall(): Services\WebpayMall
     {
-        return $this->webpayMall ?? $this->webpayMall = new Services\WebpayMall($this, $this->credentials);
+        return $this->webpayMall ??= new Services\WebpayMall($this, $this->credentials);
     }
 
     /**
@@ -272,6 +193,6 @@ class Transbank
      */
     public function oneclickMall(): Services\OneclickMall
     {
-        return $this->oneclickMall ?? $this->oneclickMall = new Services\OneclickMall($this, $this->credentials);
+        return $this->oneclickMall ??= new Services\OneclickMall($this, $this->credentials);
     }
 }

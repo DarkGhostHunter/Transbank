@@ -58,27 +58,6 @@ class Connector
     public const INTEGRATION_ENDPOINT = 'https://webpay3gint.transbank.cl/';
 
     /**
-     * PSR-18 HTTP Client
-     *
-     * @var \Psr\Http\Client\ClientInterface
-     */
-    protected $client;
-
-    /**
-     * PSR-17 Request factory.
-     *
-     * @var \Psr\Http\Message\ServerRequestFactoryInterface
-     */
-    protected $requestFactory;
-
-    /**
-     * PSR-17 (Message) Stream factory.
-     *
-     * @var \Psr\Http\Message\StreamFactoryInterface
-     */
-    protected $streamFactory;
-
-    /**
      * Connector constructor.
      *
      * @param  \Psr\Http\Client\ClientInterface  $client
@@ -86,17 +65,15 @@ class Connector
      * @param  \Psr\Http\Message\StreamFactoryInterface  $streamFactory
      */
     public function __construct(
-        ClientInterface $client,
-        ServerRequestFactoryInterface $requestFactory,
-        StreamFactoryInterface $streamFactory
+        protected ClientInterface $client,
+        protected ServerRequestFactoryInterface $requestFactory,
+        protected StreamFactoryInterface $streamFactory
     ) {
-        $this->streamFactory = $streamFactory;
-        $this->requestFactory = $requestFactory;
-        $this->client = $client;
+        //
     }
 
     /**
-     * Sends an transaction to Transbank servers.
+     * Sends a transaction to Transbank servers.
      *
      * @param  string  $method
      * @param  string  $endpoint
@@ -185,7 +162,6 @@ class Connector
      * @param  array  $options
      *
      * @return \Psr\Http\Message\ServerRequestInterface
-     * @noinspection CallableParameterUseCaseInTypeContextInspection
      */
     protected function prepareRequest(
         Request $request,
@@ -216,13 +192,13 @@ class Connector
      * @param  \Psr\Http\Message\ResponseInterface  $response
      * @param  \Psr\Http\Message\ServerRequestInterface  $request
      * @param  \DarkGhostHunter\Transbank\ApiRequest  $apiRequest
-     *
      * @return void
      */
     protected function throwExceptionOnResponseError(ApiRequest $apiRequest, Request $request, Response $response): void
     {
         // Bail out if the response is present but is not JSON.
-        if ($response->getBody()->getSize() && !in_array('application/json', $response->getHeader('Content-Type'))) {
+        if ($response->getBody()->getSize()
+            && !in_array('application/json', $response->getHeader('Content-Type'), true)) {
             throw new ServerException('Non-JSON response received.', $apiRequest, $request, $response);
         }
 
@@ -245,12 +221,11 @@ class Connector
      * Returns the error message from the Transbank response.
      *
      * @param  \Psr\Http\Message\ResponseInterface  $response
-     *
      * @return string
      */
     protected function getErrorMessage(Response $response): string
     {
-        $contents = json_decode($response->getBody()->getContents(), true, 512, JSON_ERROR_NONE) ?? [];
+        $contents = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR) ?? [];
 
         return $contents['error_message'] ?? $response->getBody()->getContents();
     }

@@ -10,7 +10,7 @@ Supports Webpay, Webpay Mall and Webpay Oneclick Mall.
 
 ## Requisites:
 
-* PHP 7.3 or later.
+* PHP 8.0 or later.
 * `ext-json`
 * [HTTP Client](#http-client)
 * [Logger](#logger-optional) (optional)
@@ -26,11 +26,11 @@ Require it with [Composer](https://getcomposer.org/):
 
 This SDK mimics all the Webpay, Webpay Mall and Oneclick Mall methods from the official Transbank SDK for PHP.
 
-You can check the documentation of these services in Transbank Developer's site (in spanish).
+You can check the documentation of these services in Transbank Developer's site.
 
-- [Webpay](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Fwebpay-plus)
-- [Webpay Mall](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus-mall) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Fwebpay-plus%23webpay-plus-mall)
-- [Oneclick Mall](https://www.transbankdevelopers.cl/documentacion/oneclick) - [[English translated]](https://translate.google.com/translate?hl=&sl=es&tl=en&u=https%3A%2F%2Fwww.transbankdevelopers.cl%2Fdocumentacion%2Foneclick)
+- [Webpay](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus)
+- [Webpay Mall](https://www.transbankdevelopers.cl/documentacion/webpay-plus#webpay-plus-mall)
+- [Oneclick Mall](https://www.transbankdevelopers.cl/documentacion/oneclick)
 
 ## Quickstart
 
@@ -42,18 +42,12 @@ use DarkGhostHunter\Transbank\Transbank;
 $transbank = Transbank::make();
 ```
 
-If your project doesn't manage singletons, you can use `singletonBuilder()` to save a builder function, and recall the singleton with `singleton()`.
+If your project doesn't manage single instances, you can use `getInstance()` to receive a static Transbank instance.
 
 ```php
 use DarkGhostHunter\Transbank\Transbank;
 
-Transbank::singletonBuilder(function () : Transbank {
-    return Transbank::make()->toProduction([
-        'webpay' => ['key' => '...', 'secret' => '...']
-    ]);
-});
-
-$tbk = Transbank::singleton();
+$transbank = Transbank::getInstance();
 ```
 
 ### Environments and credentials

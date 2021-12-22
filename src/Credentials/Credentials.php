@@ -35,17 +35,17 @@ class Credentials
      *
      * @var string|null
      */
-    public $key = null;
+    public ?string $key = null;
 
     /**
      * Service shared secret.
      *
      * @var string|null
      */
-    public $secret = null;
+    public ?string $secret = null;
 
     /**
-     * Credentials constructor.
+     * Create a new Credentials instance.
      *
      * @param  string|null  $key
      * @param  string|null  $secret
@@ -57,20 +57,29 @@ class Credentials
     }
 
     /**
+     * Instance a new Credential object with the key and secret.
+     *
+     * @param  string  $key
+     * @param  string  $secret
+     * @return static
+     */
+    public static function make(string $key, string $secret): static
+    {
+        return new static($key, $secret);
+    }
+
+    /**
      * Returns integration key for a given service name.
      *
      * @param  string  $service
-     *
-     * @return \DarkGhostHunter\Transbank\Credentials\Credentials
+     * @return static
      */
-    public static function integrationCredentials(string $service): Credentials
+    public static function integrationCredentials(string $service): static
     {
         if (!isset(static::INTEGRATION_KEYS[$service])) {
             throw new RuntimeException("The integration key for [$service] doesn't exist.");
         }
 
-        return new static(
-            static::INTEGRATION_KEYS[$service], static::INTEGRATION_SECRET
-        );
+        return static::make(static::INTEGRATION_KEYS[$service], static::INTEGRATION_SECRET);
     }
 }

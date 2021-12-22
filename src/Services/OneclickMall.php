@@ -13,7 +13,7 @@ class OneclickMall
     use SendsRequests;
     use WrapsDetail;
 
-    // Services names.
+    // Service names.
     protected const SERVICE_NAME = 'oneclickMall';
     protected const ACTION_START = self::SERVICE_NAME . '.start';
     protected const ACTION_FINISH = self::SERVICE_NAME . '.finish';
@@ -42,29 +42,14 @@ class OneclickMall
     public const ENDPOINT_CAPTURE = '/rswebpaytransaction/api/oneclick/mall/{api_version}/transactions/capture';
 
     /**
-     * Transbank instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Transbank
-     */
-    protected $transbank;
-
-    /**
-     * Credential Container instance.
-     *
-     * @var \DarkGhostHunter\Transbank\Credentials\Container
-     */
-    protected $container;
-
-    /**
      * Webpay constructor.
      *
      * @param  \DarkGhostHunter\Transbank\Transbank  $transbank
      * @param  \DarkGhostHunter\Transbank\Credentials\Container  $container
      */
-    public function __construct(Transbank $transbank, Container $container)
+    public function __construct(protected Transbank $transbank, protected Container $container)
     {
-        $this->container = $container;
-        $this->transbank = $transbank;
+        //
     }
 
     /**
@@ -74,9 +59,9 @@ class OneclickMall
      * @param  string  $email
      * @param  string  $responseUrl
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Response
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function start(
         string $username,
@@ -110,9 +95,9 @@ class OneclickMall
      *
      * @param  string  $token
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function finish(string $token, array $options = []): Transactions\Transaction
     {
@@ -138,18 +123,17 @@ class OneclickMall
         return $transaction;
     }
 
-
     /**
      * Deletes a subscription.
      *
-     * If the subscription doesn't exists, an exception will be returned.
+     * If the subscription doesn't exist, an exception will be returned.
      *
      * @param  string  $tbkUser
      * @param  string  $username
      * @param  array  $options
-     *
      * @return void
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function delete(string $tbkUser, string $username, array $options = []): void
     {
@@ -170,9 +154,9 @@ class OneclickMall
      * @param  string  $buyOrder
      * @param  array  $details
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function authorize(
         string $tbkUser,
@@ -209,9 +193,9 @@ class OneclickMall
      *
      * @param  string  $buyOrder
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function status(string $buyOrder, array $options = []): Transactions\Transaction
     {
@@ -241,15 +225,15 @@ class OneclickMall
      * @param  string  $childBuyOrder
      * @param  int|float  $amount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function refund(
         string $buyOrder,
         string $childCommerceCode,
         string $childBuyOrder,
-        $amount,
+        int|float $amount,
         array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(
@@ -290,15 +274,15 @@ class OneclickMall
      * @param  string|int  $authorizationCode
      * @param  int|float  $captureAmount
      * @param  array  $options
-     *
      * @return \DarkGhostHunter\Transbank\Services\Transactions\Transaction
-     * @throws \DarkGhostHunter\Transbank\Exceptions\TransbankException
+     *
+     * @throws \JsonException|\DarkGhostHunter\Transbank\Exceptions\TransbankException
      */
     public function capture(
         string $commerceCode,
         string $buyOrder,
-        $authorizationCode,
-        $captureAmount,
+        string|int $authorizationCode,
+        int|float $captureAmount,
         array $options = []
     ): Transactions\Transaction {
         $apiRequest = new ApiRequest(
