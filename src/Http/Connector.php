@@ -19,6 +19,7 @@ use DarkGhostHunter\Transbank\Exceptions\NetworkException;
 use DarkGhostHunter\Transbank\Exceptions\ServerException;
 use DarkGhostHunter\Transbank\Exceptions\UnknownException;
 use DarkGhostHunter\Transbank\Transbank;
+use function in_array;
 
 class Connector
 {
