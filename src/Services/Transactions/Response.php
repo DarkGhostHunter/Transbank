@@ -2,7 +2,9 @@
 
 namespace DarkGhostHunter\Transbank\Services\Transactions;
 
-class Response
+use Stringable;
+
+class Response implements Stringable
 {
     /**
      * Response constructor.
