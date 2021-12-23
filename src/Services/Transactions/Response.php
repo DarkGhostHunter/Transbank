@@ -9,8 +9,12 @@ class Response
      *
      * @param  string  $token
      * @param  string  $url
+     * @param  string  $tokenName
      */
-    public function __construct(protected string $token, protected string $url)
+    public function __construct(
+        protected string $token,
+        protected string $url,
+        protected string $tokenName = 'token_ws')
     {
         //
     }
@@ -42,6 +46,6 @@ class Response
      */
     public function __toString(): string
     {
-        return $this->url . '?' . http_build_query(['token_ws' => $this->token]);
+        return $this->url . '?' . http_build_query([$this->tokenName => $this->token]);
     }
 }
