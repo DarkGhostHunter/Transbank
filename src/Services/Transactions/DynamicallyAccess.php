@@ -3,16 +3,15 @@
 namespace DarkGhostHunter\Transbank\Services\Transactions;
 
 use BadMethodCallException;
-use function strlen;
-use function strncmp;
+use function ctype_lower;
 use function ctype_upper;
-use function substr;
-use function strtolower;
+use function json_encode;
 use function ltrim;
 use function preg_replace;
-use function ctype_lower;
+use function str_starts_with;
+use function strtolower;
+use function substr;
 use function trigger_error;
-use function json_encode;
 
 trait DynamicallyAccess
 {
@@ -27,7 +26,7 @@ trait DynamicallyAccess
     public function __call(string $method, array $arguments): mixed
     {
         // If the call starts with "get", the developer is getting a property.
-        if (strlen($method) > 3 && 0 === strncmp($method, 'get', strlen('get')) && ctype_upper($method[3])) {
+        if (str_starts_with($method, 'get') && ctype_upper($method[3] ?? '')) {
             $name = substr($method, 3);
 
             // The name of the method could be "camelCase" so let's try that

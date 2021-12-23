@@ -105,6 +105,18 @@ class TransactionTest extends TestCase
         $transaction->setFoo('quz');
     }
 
+    public function test_exception_on_only_get(): void
+    {
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Method get does not exist');
+
+        $transaction = new Transaction('foo', [
+            'foo' => 'bar',
+        ]);
+
+        $transaction->get();
+    }
+
     public function test_accessible_as_array(): void
     {
         $transaction = new Transaction('foo', [
