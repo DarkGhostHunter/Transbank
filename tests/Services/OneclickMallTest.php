@@ -17,6 +17,7 @@ use DarkGhostHunter\Transbank\Events\TransactionCreating;
 use DarkGhostHunter\Transbank\Http\Connector;
 use DarkGhostHunter\Transbank\Services\OneclickMall;
 use DarkGhostHunter\Transbank\Services\Transactions\TransactionDetail;
+use function http_build_query;
 
 class OneclickMallTest extends TestCase
 {
@@ -27,13 +28,13 @@ class OneclickMallTest extends TestCase
     public function test_uses_production_credentials(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function (string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 static::assertEquals('test_key', $credentials->key);
                 static::assertEquals('test_secret', $credentials->secret);
                 return true;
             }
-        )->times(6)->andReturn(['token' => 'test_token', 'url_webpay' => 'test_url']);
+        )->times(6)->andReturns(['token' => 'test_token', 'url_webpay' => 'test_url']);
 
         $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
         $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
@@ -51,7 +52,7 @@ class OneclickMallTest extends TestCase
     public function test_uses_integration_credentials_by_default(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function (string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 if ($apiRequest->serviceAction === 'oneclickMall.capture') {
                     static::assertEquals(Credentials::INTEGRATION_KEYS['oneclickMall.capture'], $credentials->key);
@@ -61,7 +62,7 @@ class OneclickMallTest extends TestCase
                 static::assertEquals(Credentials::INTEGRATION_SECRET, $credentials->secret);
                 return true;
             }
-        )->times(6)->andReturn(['token' => 'test_token', 'url_webpay' => 'test_url']);
+        )->times(6)->andReturns(['token' => 'test_token', 'url_webpay' => 'test_url']);
 
         $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
         $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
@@ -145,6 +146,7 @@ class OneclickMallTest extends TestCase
 
         static::assertEquals($response->getToken(), $token);
         static::assertEquals($response->getUrl(), $url);
+        static::assertEquals($response, 'https://webpay3g.transbank.cl/webpayserver/initTransaction?TBK_TOKEN=' . $token);
 
         static::assertCount(1, $this->requests);
         static::assertEquals('POST', $this->requests[0]['request']->getMethod());

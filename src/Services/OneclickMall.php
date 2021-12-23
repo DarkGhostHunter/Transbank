@@ -87,7 +87,7 @@ class OneclickMall
         $this->fireCreated($apiRequest, $transaction);
         $this->logResponse($apiRequest, $response);
 
-        return new Transactions\Response($response['token'], $response['url_webpay']);
+        return new Transactions\Response($response['token'], $response['url_webpay'], 'TBK_TOKEN');
     }
 
     /**
