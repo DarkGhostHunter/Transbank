@@ -16,7 +16,7 @@
     "php": "^8.0",
     "ext-json": "*",
     "psr/http-client": "1.*",
-    "psr/log": "2.*|3.*",
+    "psr/log": "1.*|2.*|3.*",
     "psr/event-dispatcher": "1.*",
     "nyholm/psr7": "^1.4"
   },
