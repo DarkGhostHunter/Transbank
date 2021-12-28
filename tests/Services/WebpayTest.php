@@ -26,16 +26,16 @@ class WebpayTest extends TestCase
     public function test_uses_production_credentials(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function(string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 static::assertEquals('test_key', $credentials->key);
                 static::assertEquals('test_secret', $credentials->secret);
                 return true;
             }
-        )->times(5)->andReturn(['token' => 'test_token', 'url' => 'test_url']);
+        )->times(5)->andReturns(['token' => 'test_token', 'url' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->toProduction([
             'webpay' => ['key' => 'test_key', 'secret' => 'test_secret']
@@ -51,16 +51,16 @@ class WebpayTest extends TestCase
     public function test_uses_integration_credentials_by_default(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function(string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 static::assertEquals(Credentials::INTEGRATION_KEYS['webpay'], $credentials->key);
                 static::assertEquals(Credentials::INTEGRATION_SECRET, $credentials->secret);
                 return true;
             }
-        )->times(5)->andReturn(['token' => 'test_token', 'url' => 'test_url']);
+        )->times(5)->andReturns(['token' => 'test_token', 'url' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->webpay()->create('test_buy_order', 100, 'test_return_url', 'test_session_id');
         $this->transbank->webpay()->status('test_token');
@@ -85,53 +85,58 @@ class WebpayTest extends TestCase
             ], JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->dispatcher->shouldReceive('dispatch', function(TransactionCreating $event) use ($buyOrder, $amount, $returnUrl, $sessionId) {
-            static::assertEquals('webpay.create', $event->apiRequest->serviceAction);
-            static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
-            static::assertEquals($amount, $event->apiRequest['amount']);
-            static::assertEquals($returnUrl, $event->apiRequest['return_url']);
-            static::assertEquals($sessionId, $event->apiRequest['session_id']);
+        $this->dispatcher->expects('dispatch')->withArgs(
+            function (TransactionCreating $event) use ($buyOrder, $amount, $returnUrl, $sessionId) {
+                static::assertEquals('webpay.create', $event->apiRequest->serviceAction);
+                static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
+                static::assertEquals($amount, $event->apiRequest['amount']);
+                static::assertEquals($returnUrl, $event->apiRequest['return_url']);
+                static::assertEquals($sessionId, $event->apiRequest['session_id']);
 
-            return true;
-        });
+                return true;
+            }
+        );
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($buyOrder, $amount, $returnUrl, $sessionId) {
-            static::assertEquals('Creating transaction', $action);
-            static::assertEquals($buyOrder, $context['api_request']['buy_order']);
-            static::assertEquals($amount, $context['api_request']['amount']);
-            static::assertEquals($returnUrl, $context['api_request']['return_url']);
-            static::assertEquals($sessionId, $context['api_request']['session_id']);
+        $this->logger->expects('debug')->withArgs(
+            function (string $action, array $context) use ($buyOrder, $amount, $returnUrl, $sessionId) {
+                static::assertEquals('Creating transaction', $action);
+                static::assertEquals($buyOrder, $context['api_request']['buy_order']);
+                static::assertEquals($amount, $context['api_request']['amount']);
+                static::assertEquals($returnUrl, $context['api_request']['return_url']);
+                static::assertEquals($sessionId, $context['api_request']['session_id']);
 
-            return true;
-        });
+                return true;
+            }
+        );
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($buyOrder, $amount, $returnUrl, $sessionId, $token, $url) {
-            static::assertEquals('Received response', $action);
-            static::assertEquals($buyOrder, $context['api_request']['buy_order']);
-            static::assertEquals($amount, $context['api_request']['amount']);
-            static::assertEquals($returnUrl, $context['api_request']['return_url']);
-            static::assertEquals($sessionId, $context['api_request']['session_id']);
-            static::assertEquals($token, $context['response']['token']);
-            static::assertEquals($url, $context['response']['url']);
+        $this->logger->expects('debug')->withArgs(
+            function (string $action, array $context) use ($buyOrder, $amount, $returnUrl, $sessionId, $token, $url) {
+                static::assertEquals('Response received', $action);
+                static::assertEquals($buyOrder, $context['api_request']['buy_order']);
+                static::assertEquals($amount, $context['api_request']['amount']);
+                static::assertEquals($returnUrl, $context['api_request']['return_url']);
+                static::assertEquals($sessionId, $context['api_request']['session_id']);
+                static::assertEquals($token, $context['raw_response']['token']);
+                static::assertEquals($url, $context['raw_response']['url']);
 
-            return true;
-        });
+                return true;
+            }
+        );
 
-        $this->dispatcher->shouldReceive('dispatch', function(TransactionCreated $event) use ($buyOrder, $amount, $returnUrl, $sessionId) {
-            static::assertEquals('webpay.create', $event->apiRequest->serviceAction);
-            static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
-            static::assertEquals($amount, $event->apiRequest['amount']);
-            static::assertEquals($returnUrl, $event->apiRequest['return_url']);
-            static::assertEquals($sessionId, $event->apiRequest['session_id']);
-            static::assertEquals(
-                new TransbankResponse(
-                    '1ab1cc073c91fe5fc08a1b3b00ac3f63033a0e3dbdfdb1fde55c044ed8161b6',
-                    'https://webpay3g.transbank.cl/webpayserver/initTransaction'
-                ),
-                $event->response
-            );
-            return true;
-        });
+        $this->dispatcher->expects('dispatch')->withArgs(
+            function (TransactionCreated $event) use ($buyOrder, $amount, $returnUrl, $sessionId, $token) {
+                static::assertEquals('webpay.create', $event->apiRequest->serviceAction);
+                static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
+                static::assertEquals($amount, $event->apiRequest['amount']);
+                static::assertEquals($returnUrl, $event->apiRequest['return_url']);
+                static::assertEquals($sessionId, $event->apiRequest['session_id']);
+                static::assertEquals(
+                    new TransbankResponse($token, 'https://webpay3g.transbank.cl/webpayserver/initTransaction'),
+                    $event->response
+                );
+                return true;
+            }
+        );
 
         $response = $this->transbank->webpay()->create($buyOrder, $amount, $returnUrl, $sessionId, []);
 
@@ -184,29 +189,29 @@ class WebpayTest extends TestCase
             ], json_encode($transbankResponse, JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Committing transaction', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpay.commit', $context['api_request']->serviceAction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpay.commit', $context['api_request']->serviceAction);
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse) {
             static::assertEquals('webpay.commit', $event->apiRequest->serviceAction);
             static::assertEquals(new Transaction('webpay.commit', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->webpay()->commit($token);
 
@@ -251,24 +256,28 @@ class WebpayTest extends TestCase
             ], json_encode($transbankResponse, JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->dispatcher->shouldNotReceive('dispatch');
+        $this->dispatcher->allows('dispatch')->never();
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($token) {
-            static::assertEquals('Retrieving transaction status', $action);
-            static::assertEquals($token, $context['token']);
-            static::assertEquals('webpay.status', $context['api_request']->serviceAction);
+        $this->logger->expects('debug')->withArgs(
+            function (string $action, array $context) use ($token) {
+                static::assertEquals('Retrieving transaction status', $action);
+                static::assertEquals($token, $context['token']);
+                static::assertEquals('webpay.status', $context['api_request']->serviceAction);
 
-            return true;
-        });
+                return true;
+            }
+        );
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($token, $transbankResponse) {
-            static::assertEquals('Response received', $action);
-            static::assertEquals($token, $context['token']);
-            static::assertEquals('webpay.status', $context['api_request']->serviceAction);
-            static::assertEquals($transbankResponse, $context['response']);
+        $this->logger->expects('debug')->withArgs(
+            function (string $action, array $context) use ($token, $transbankResponse) {
+                static::assertEquals('Response received', $action);
+                static::assertEquals($token, $context['token']);
+                static::assertEquals('webpay.status', $context['api_request']->serviceAction);
+                static::assertEquals($transbankResponse, $context['raw_response']);
 
-            return true;
-        });
+                return true;
+            }
+        );
 
         $response = $this->transbank->webpay()->status($token);
 
@@ -301,31 +310,31 @@ class WebpayTest extends TestCase
             'response_code' => 0,
         ];
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreating $event) use ($nullifiedAmount) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreating $event) use ($nullifiedAmount) {
             static::assertEquals('webpay.refund', $event->apiRequest->serviceAction);
             static::assertEquals($event->apiRequest['amount'], $nullifiedAmount);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse, $nullifiedAmount) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse, $nullifiedAmount) {
             static::assertEquals('webpay.refund', $event->apiRequest->serviceAction);
             static::assertEquals($event->apiRequest['amount'], $nullifiedAmount);
             static::assertEquals(new Transaction('webpay.refund', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($nullifiedAmount, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($nullifiedAmount, $token) {
             static::assertEquals('Refunding transaction', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpay.refund', $context['api_request']->serviceAction);
             static::assertEquals($nullifiedAmount, $context['api_request']['amount']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $nullifiedAmount, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $nullifiedAmount, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpay.refund', $context['api_request']->serviceAction);
@@ -333,7 +342,7 @@ class WebpayTest extends TestCase
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $this->handlerStack->setHandler($mockHandler = new MockHandler([
             new Response(200, [
@@ -380,7 +389,7 @@ class WebpayTest extends TestCase
             'response_code' => 0,
         ];
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($captureAmount, $authorizationCode, $buyOrder, $transbankResponse) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($captureAmount, $authorizationCode, $buyOrder, $transbankResponse) {
             static::assertEquals('webpay.capture', $event->apiRequest->serviceAction);
             static::assertEquals($event->apiRequest['buy_order'], $buyOrder);
             static::assertEquals($event->apiRequest['authorization_code'], $authorizationCode);
@@ -388,22 +397,22 @@ class WebpayTest extends TestCase
             static::assertEquals(new Transaction('webpay.capture', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Capturing transaction', $action);
             static::assertEquals($token, $context['token']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $this->handlerStack->setHandler($mockHandler = new MockHandler([
             new Response(200, [

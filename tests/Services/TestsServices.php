@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Mockery;
-use Mockery\MockInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
@@ -19,7 +18,9 @@ trait TestsServices
     /** @var Transbank */
     protected $transbank;
     protected $handlerStack;
+    /** @var \Mockery\MockInterface|\Psr\Log\LoggerInterface */
     protected $logger;
+    /** @var \Mockery\MockInterface|\Psr\EventDispatcher\EventDispatcherInterface */
     protected $dispatcher;
     /** @var array<array<\GuzzleHttp\Psr7\ServerRequest>> */
     protected $requests;

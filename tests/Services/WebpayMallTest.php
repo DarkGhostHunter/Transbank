@@ -28,16 +28,16 @@ class WebpayMallTest extends TestCase
     public function test_uses_production_credentials(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function(string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 static::assertEquals('test_key', $credentials->key);
                 static::assertEquals('test_secret', $credentials->secret);
                 return true;
             }
-        )->times(5)->andReturn(['token' => 'test_token', 'url' => 'test_url']);
+        )->times(5)->andReturns(['token' => 'test_token', 'url' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->toProduction([
             'webpayMall' => ['key' => 'test_key', 'secret' => 'test_secret']
@@ -53,7 +53,7 @@ class WebpayMallTest extends TestCase
     public function test_uses_integration_credentials_by_default(): void
     {
         $this->transbank->connector = Mockery::mock(Connector::class);
-        $this->transbank->connector->shouldReceive('send')->withArgs(
+        $this->transbank->connector->expects('send')->withArgs(
             function(string $method, string $endpoint, ApiRequest $apiRequest, Credentials $credentials) {
                 if ($apiRequest->serviceAction === 'webpayMall.capture') {
                     static::assertEquals(Credentials::INTEGRATION_KEYS['webpayMall.capture'], $credentials->key);
@@ -63,10 +63,10 @@ class WebpayMallTest extends TestCase
                 static::assertEquals(Credentials::INTEGRATION_SECRET, $credentials->secret);
                 return true;
             }
-        )->times(5)->andReturn(['token' => 'test_token', 'url' => 'test_url']);
+        )->times(5)->andReturns(['token' => 'test_token', 'url' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->webpayMall()->create('test_buy_order', 'test_return_url', 'test_session_id', []);
         $this->transbank->webpayMall()->status('test_token');
@@ -102,7 +102,7 @@ class WebpayMallTest extends TestCase
             ], JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($buyOrder, $returnUrl, $details, $sessionId) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($buyOrder, $returnUrl, $details, $sessionId) {
             static::assertEquals('Creating transaction', $action);
             static::assertEquals($buyOrder, $context['api_request']['buy_order']);
             static::assertEquals($details, $context['api_request']['details']);
@@ -110,9 +110,9 @@ class WebpayMallTest extends TestCase
             static::assertEquals($sessionId, $context['api_request']['session_id']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreating $event) use ($buyOrder, $returnUrl, $details, $sessionId) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreating $event) use ($buyOrder, $returnUrl, $details, $sessionId) {
             static::assertEquals('webpayMall.create', $event->apiRequest->serviceAction);
             static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
             static::assertEquals($details, $event->apiRequest['details']);
@@ -120,9 +120,9 @@ class WebpayMallTest extends TestCase
             static::assertEquals($sessionId, $event->apiRequest['session_id']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreated $event) use ($buyOrder, $returnUrl, $details, $sessionId) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreated $event) use ($buyOrder, $returnUrl, $details, $sessionId) {
             static::assertEquals('webpayMall.create', $event->apiRequest->serviceAction);
             static::assertEquals($buyOrder, $event->apiRequest['buy_order']);
             static::assertEquals($details, $event->apiRequest['details']);
@@ -137,9 +137,9 @@ class WebpayMallTest extends TestCase
             );
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($url, $token, $buyOrder, $returnUrl, $details, $sessionId) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($url, $token, $buyOrder, $returnUrl, $details, $sessionId) {
             static::assertEquals('Response received', $action);
             static::assertEquals($buyOrder, $context['api_request']['buy_order']);
             static::assertEquals($details, $context['api_request']['details']);
@@ -149,7 +149,7 @@ class WebpayMallTest extends TestCase
             static::assertEquals($url, $context['raw_response']['url']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->webpayMall()->create($buyOrder, $returnUrl, $sessionId, $details);
 
@@ -215,29 +215,29 @@ class WebpayMallTest extends TestCase
             ], json_encode($transbankResponse, JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse) {
             static::assertEquals('webpayMall.commit', $event->apiRequest->serviceAction);
             static::assertEquals($event->transaction, Transaction::createWithDetails('webpayMall.commit', $transbankResponse));
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Committing transaction', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.commit', $context['api_request']->serviceAction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.commit', $context['api_request']->serviceAction);
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->webpayMall()->commit($token);
 
@@ -303,9 +303,9 @@ class WebpayMallTest extends TestCase
             ], json_encode($transbankResponse, JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->dispatcher->shouldNotReceive('dispatch');
+        $this->dispatcher->allows('dispatch')->never();
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($token) {
+        $this->logger->allows('debug')->once()->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Retrieving transaction status', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.status', $context['api_request']->serviceAction);
@@ -313,11 +313,11 @@ class WebpayMallTest extends TestCase
             return true;
         });
 
-        $this->logger->shouldReceive('debug', function(string $action, array $context) use ($token, $transbankResponse) {
+        $this->logger->allows('debug')->once()->withArgs(function(string $action, array $context) use ($token, $transbankResponse) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.status', $context['api_request']->serviceAction);
-            static::assertEquals($transbankResponse, $context['response']);
+            static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
         });
@@ -364,31 +364,31 @@ class WebpayMallTest extends TestCase
             'response_code' => 0,
         ];
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreating $event) use ($nullifiedAmount) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreating $event) use ($nullifiedAmount) {
             static::assertEquals('webpayMall.refund', $event->apiRequest->serviceAction);
             static::assertEquals($event->apiRequest['amount'], $nullifiedAmount);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse, $nullifiedAmount) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($transbankResponse, $nullifiedAmount) {
             static::assertEquals('webpayMall.refund', $event->apiRequest->serviceAction);
             static::assertEquals($nullifiedAmount, $event->apiRequest['amount']);
             static::assertEquals(Transaction::createWithDetails('webpayMall.refund', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($nullifiedAmount, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($nullifiedAmount, $token) {
             static::assertEquals('Refunding transaction', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.refund', $context['api_request']->serviceAction);
             static::assertEquals($nullifiedAmount, $context['api_request']['amount']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $nullifiedAmount, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $nullifiedAmount, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('webpayMall.refund', $context['api_request']->serviceAction);
@@ -396,7 +396,7 @@ class WebpayMallTest extends TestCase
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $this->handlerStack->setHandler(new MockHandler([
             new Response(200, [
@@ -447,7 +447,7 @@ class WebpayMallTest extends TestCase
             'response_code' => 0,
         ];
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use ($captureAmount, $authorizationCode, $buyOrder, $transbankResponse) {
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use ($captureAmount, $authorizationCode, $buyOrder, $transbankResponse) {
             static::assertEquals('webpayMall.capture', $event->apiRequest->serviceAction);
             static::assertEquals($event->apiRequest['buy_order'], $buyOrder);
             static::assertEquals($event->apiRequest['authorization_code'], $authorizationCode);
@@ -455,22 +455,22 @@ class WebpayMallTest extends TestCase
             static::assertEquals(Transaction::createWithDetails('webpayMall.capture', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Capturing transaction', $action);
             static::assertEquals($token, $context['token']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($transbankResponse, $token) {
             static::assertEquals('Response received', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $this->handlerStack->setHandler(new MockHandler([
             new Response(200, [

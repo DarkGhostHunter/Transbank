@@ -52,7 +52,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json'],
         ], '{"foo": "bar"}');
 
-        $this->client->shouldReceive('sendRequest')->withArgs(function(ServerRequestInterface $request) {
+        $this->client->expects('sendRequest')->withArgs(function(ServerRequestInterface $request) {
             static::assertEquals('qux', $request->getHeader(Connector::HEADER_KEY)[0]);
             static::assertEquals('quuz', $request->getHeader(Connector::HEADER_SECRET)[0]);
             static::assertEquals('/api/' . Connector::API_VERSION . '/example', $request->getUri()->getPath());
@@ -61,7 +61,7 @@ class ConnectorTest extends TestCase
             static::assertEquals('foo', $request->getMethod());
 
             return true;
-        })->once()->andReturn($response);
+        })->andReturns($response);
 
         $array = $this->conector->send(
             'foo',
@@ -79,7 +79,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json'],
         ], '{"foo": "bar"}');
 
-        $this->client->shouldReceive('sendRequest')->withArgs(function(ServerRequestInterface $request) {
+        $this->client->expects('sendRequest')->withArgs(function(ServerRequestInterface $request) {
 
             static::assertCount(1, $request->getHeader(Connector::HEADER_KEY));
             static::assertCount(1, $request->getHeader(Connector::HEADER_SECRET));
@@ -88,7 +88,7 @@ class ConnectorTest extends TestCase
             static::assertEquals('test_secret', $request->getHeader(Connector::HEADER_SECRET)[0]);
 
             return true;
-        })->once()->andReturn($response);
+        })->andReturns($response);
 
         $this->conector->send(
             'foo',
@@ -110,7 +110,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json']
         ], '{"foo": "bar"}');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $array = $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),
@@ -125,7 +125,7 @@ class ConnectorTest extends TestCase
         $this->expectException(NetworkException::class);
         $this->expectExceptionMessage('Could not establish connection with Transbank.');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andThrow(
+        $this->client->expects('sendRequest')->withAnyArgs()->andThrow(
             new ConnectException(
                 'Something bad happened', new Request('foo', 'foo/bar'),
             )
@@ -146,7 +146,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json']
         ], '{"foo": "bar"}');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),
@@ -159,7 +159,7 @@ class ConnectorTest extends TestCase
         $this->expectException(UnknownException::class);
         $this->expectExceptionMessage('An error occurred when trying to communicate with Transbank.');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andThrow(
+        $this->client->expects('sendRequest')->withAnyArgs()->andThrow(
             new Exception('Something bad!')
         );
 
@@ -178,7 +178,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json']
         ], '{"error_message": "This is bad!"}');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),
@@ -195,7 +195,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json']
         ], '{"error_message": "This is SUPER bad!"}');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),
@@ -212,7 +212,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/xml']
         ], '{"error_message": "This is not JSON!"}');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),
@@ -229,7 +229,7 @@ class ConnectorTest extends TestCase
             'content-type' => ['application/json']
         ], 'This is not JSON!');
 
-        $this->client->shouldReceive('sendRequest')->withAnyArgs()->once()->andReturn($response);
+        $this->client->expects('sendRequest')->withAnyArgs()->andReturns($response);
 
         $this->conector->send('foo', 'bar',
             new ApiRequest('bar', ['baz' => 'quz']),

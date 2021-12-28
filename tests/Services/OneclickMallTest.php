@@ -36,8 +36,8 @@ class OneclickMallTest extends TestCase
             }
         )->times(6)->andReturns(['token' => 'test_token', 'url_webpay' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->toProduction(['oneclickMall' => ['key' => 'test_key', 'secret' => 'test_secret']]);
 
@@ -64,8 +64,8 @@ class OneclickMallTest extends TestCase
             }
         )->times(6)->andReturns(['token' => 'test_token', 'url_webpay' => 'test_url']);
 
-        $this->logger->shouldReceive('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
-        $this->dispatcher->shouldReceive('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->logger->allows('debug')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
+        $this->dispatcher->allows('dispatch')->withAnyArgs()->zeroOrMoreTimes()->andReturnNull();
 
         $this->transbank->oneclickMall()->start('test_username', 'test_email', 'test_response_url');
         $this->transbank->oneclickMall()->finish('test_token');
@@ -90,7 +90,7 @@ class OneclickMallTest extends TestCase
            ], JSON_THROW_ON_ERROR)),
         ]));
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use (
             $responseUrl,
             $email, $username) {
             static::assertEquals('Creating subscription', $action);
@@ -99,9 +99,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($responseUrl, $context['api_request']['response_url']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreating $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreating $event) use (
             $responseUrl,
             $email,
             $username) {
@@ -111,9 +111,9 @@ class OneclickMallTest extends TestCase
                 static::assertEquals($responseUrl, $event->apiRequest['response_url']);
 
                 return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use (
             $url,
             $token,
             $responseUrl,
@@ -125,9 +125,9 @@ class OneclickMallTest extends TestCase
                 static::assertEquals($token, $context['raw_response']['token']);
                 static::assertEquals($url, $context['raw_response']['url_webpay']);
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCreated $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCreated $event) use (
             $token,
             $url,
             $responseUrl,
@@ -140,7 +140,7 @@ class OneclickMallTest extends TestCase
             static::assertEquals(new TransbankResponse($token, $url), $event->response);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->start($username, $email, $responseUrl);
 
@@ -185,15 +185,15 @@ class OneclickMallTest extends TestCase
             )
         );
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use ($token) {
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use ($token) {
             static::assertEquals('Finishing subscription', $action);
             static::assertEquals($token, $context['token']);
             static::assertEquals('oneclickMall.finish', $context['api_request']->serviceAction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use (
             $cardNumber,
             $cardType,
             $authorizationCode,
@@ -210,9 +210,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($cardNumber, $context['raw_response']['card_number']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function(TransactionCompleted $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function(TransactionCompleted $event) use (
             $cardNumber,
             $cardType,
             $authorizationCode,
@@ -227,7 +227,7 @@ class OneclickMallTest extends TestCase
             static::assertEquals($cardNumber, $event->transaction['card_number']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->finish($token);
 
@@ -253,7 +253,7 @@ class OneclickMallTest extends TestCase
 
         $this->handlerStack->setHandler(new MockHandler([new Response(204, ['content-type' => 'application/json'])]));
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function(string $action, array $context) use (
             $username,
             $tbkUser) {
             static::assertEquals('Deleting subscription', $action);
@@ -262,9 +262,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals('oneclickMall.delete', $context['api_request']->serviceAction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function(string $message, array $context) use (
+        $this->logger->expects('debug')->withArgs(function(string $message, array $context) use (
             $username,
             $tbkUser) {
             static::assertEquals('Response received', $message);
@@ -274,7 +274,7 @@ class OneclickMallTest extends TestCase
             static::assertEmpty($context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $this->transbank->oneclickMall()->delete($tbkUser, $username);
 
@@ -333,7 +333,7 @@ class OneclickMallTest extends TestCase
             )
         );
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $details,
             $parentBuyOrder,
             $username,
@@ -345,9 +345,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($details, $context['api_request']['details']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function (TransactionCreating $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function (TransactionCreating $event) use (
             $details,
             $parentBuyOrder,
             $username,
@@ -358,9 +358,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($details, $event->apiRequest['details']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $transbankResponse,
             $details,
             $parentBuyOrder,
@@ -375,9 +375,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function (TransactionCompleted $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function (TransactionCompleted $event) use (
             $transbankResponse,
             $details,
             $parentBuyOrder,
@@ -393,7 +393,7 @@ class OneclickMallTest extends TestCase
             static::assertEquals(Transaction::createWithDetails('oneclickMall.authorize', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->authorize($tbkUser, $username, $parentBuyOrder, $details);
 
@@ -461,17 +461,17 @@ class OneclickMallTest extends TestCase
             )
         );
 
-        $this->dispatcher->shouldNotReceive('dispatch');
+        $this->dispatcher->allows('dispatch')->never();
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use ($buyOrder) {
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use ($buyOrder) {
             static::assertEquals('Retrieving transaction status', $action);
             static::assertEquals('oneclickMall.status', $context['api_request']->serviceAction);
             static::assertEquals($buyOrder, $context['buy_order']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(
+        $this->logger->expects('debug')->withArgs(
             function (string $action, array $context) use ($transbankResponse) {
                 static::assertEquals('Response received', $action);
                 static::assertEquals('oneclickMall.status', $context['api_request']->serviceAction);
@@ -480,7 +480,7 @@ class OneclickMallTest extends TestCase
 
                 return true;
             }
-        )->once()->andReturnNull();
+        )->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->status($buyOrder);
 
@@ -533,7 +533,7 @@ class OneclickMallTest extends TestCase
             )
         );
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $amount,
             $childBuyOrder,
             $childCommerceCode,
@@ -549,9 +549,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($amount, $context['api_request']['amount']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function (TransactionCreating $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function (TransactionCreating $event) use (
             $amount,
             $childBuyOrder,
             $childCommerceCode
@@ -562,9 +562,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($amount, $event->apiRequest['amount']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $transbankResponse,
             $amount,
             $childBuyOrder,
@@ -582,9 +582,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($transbankResponse, $context['response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function (TransactionCompleted $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function (TransactionCompleted $event) use (
             $transbankResponse,
             $amount,
             $childBuyOrder,
@@ -598,7 +598,7 @@ class OneclickMallTest extends TestCase
             static::assertEquals(new Transaction('oneclickMall.refund', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->refund($buyOrder, $childCommerceCode, $childBuyOrder, $amount);
 
@@ -643,7 +643,7 @@ class OneclickMallTest extends TestCase
             )
         );
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $captureAmount,
             $authorizationCode,
             $buyOrder,
@@ -658,9 +658,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($captureAmount, $context['api_request']['capture_amount']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->logger->shouldReceive('debug')->withArgs(function (string $action, array $context) use (
+        $this->logger->expects('debug')->withArgs(function (string $action, array $context) use (
             $transbankResponse,
             $captureAmount,
             $authorizationCode,
@@ -678,9 +678,9 @@ class OneclickMallTest extends TestCase
             static::assertEquals($transbankResponse, $context['raw_response']);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
-        $this->dispatcher->shouldReceive('dispatch')->withArgs(function (TransactionCompleted $event) use (
+        $this->dispatcher->expects('dispatch')->withArgs(function (TransactionCompleted $event) use (
             $captureAmount,
             $authorizationCode,
             $buyOrder,
@@ -698,7 +698,7 @@ class OneclickMallTest extends TestCase
             static::assertEquals(new Transaction('oneclickMall.capture', $transbankResponse), $event->transaction);
 
             return true;
-        })->once()->andReturnNull();
+        })->andReturnNull();
 
         $response = $this->transbank->oneclickMall()->capture(
             $commerceCode,
