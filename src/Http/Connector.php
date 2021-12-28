@@ -184,7 +184,7 @@ class Connector
         }
 
         $request = $request->withHeader('Content-Type', 'application/json');
-        $request = $request->withHeader('User-Agent', 'php:darkghosthunter/webpay/' . Transbank::VERSION);
+        $request = $request->withHeader('User-Agent', 'php:darkghosthunter/transbank/' . Transbank::VERSION);
 
         return $request->withBody($this->streamFactory->createStream($apiRequest->toJson()));
     }
